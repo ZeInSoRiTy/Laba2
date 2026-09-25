@@ -9,6 +9,7 @@
 enum class ValidationError {
     None,
     EmptyInput,
+    NegativeNum,
     InvalidChars,
     LeadingZeros,
     EmptyDot,
@@ -28,7 +29,10 @@ ValidationError validate(const std::string& input) {
     if (input.find('.') != std::string::npos || input.find(',') != std::string::npos) {
         return ValidationError::FloatNum;
     }
-    if (!std::regex_match(input, std::regex(R"(^[+-]?\d+$)"))) {
+    if (std::regex_match(input, std::regex(R"(^-\d+$)"))) {
+        return ValidationError::NegativeNum;
+    }
+    if (!std::regex_match(input, std::regex(R"(^\d+$)"))) {
         return ValidationError::InvalidChars;
     }
     if (std::regex_match(input, std::regex(R"(^-0+$)"))) {
@@ -37,10 +41,10 @@ ValidationError validate(const std::string& input) {
     if (std::regex_match(input, std::regex(R"(^\+0+$)"))) {
         return ValidationError::PositiveZero;
     }
-    if (std::regex_match(input, std::regex(R"(^[+-]?0\d+$)"))) {
+    if (std::regex_match(input, std::regex(R"(^0\d+$)"))) {
         return ValidationError::LeadingZeros;
     }
-    if (!std::regex_match(input, std::regex(R"(^[+-]?(0|[1-9]\d*)$)"))) {
+    if (!std::regex_match(input, std::regex(R"(^(0|[1-9]\d*)$)"))) {
         return ValidationError::InvalidChars;
     }
     try {
@@ -75,6 +79,8 @@ std::string returnValidation(const std::string& input) {
         return "Введенное число является слишком большим. Пожалуйста, введите число меньше.";
     case ValidationError::FloatNum:
         return "Введенное число не является целым. Пожалуйста, не будьте динозавром и введите целое число в формате <неотрицательное число>";
+    case ValidationError::NegativeNum:
+        return "Введенное число является отрицательным. Пожалуйста, не будьте динозавром и введите целое число в формате <неотрицательное число>";
     }
     return "Неизвестная ошибка. Поздравляю, вы динозавр";
 }
@@ -246,8 +252,3 @@ int main()
 
     return 0;
 }
-
-//Глупая лягушка поднимается по лестнице.
-//Лягушка делает прыжок вверх на N ступенек,
-//при этом у нее получается отскок от достигнутого результата на M ступенек вниз.
-//Сколько потребуется сделать прыжков лягушке, чтобы остановится на ступеньке с номером S?
